@@ -281,8 +281,6 @@
     "flowrate",
     "log",
     "merkle",
-    "pubsub",
-    "pubsub/query",
     "test"
   ]
   revision = "cc5f287c4798ffe88c04d02df219ecb6932080fd"
@@ -384,6 +382,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f694b7016a9350384362d008c6e4aeadd530493f563d1419912bc5434325dc95"
+  inputs-digest = "fd7f01ccfa9bef049cfd6f9c6dd41c0b9fe1f7889f9feb73ab46423a686a94a3"
   solver-name = "gps-cdcl"
   solver-version = 1
