@@ -18,7 +18,8 @@ import (
 )
 
 var (
-	privKey      = crypto.GenPrivKeyEd25519FromSecret([]byte("execution_test"))
+	privKey      = crypto.GenPrivKeyEd25519FromSecret([]byte("execution_test_1"))
+	privKey2     = crypto.GenPrivKeyEd25519FromSecret([]byte("execution_test_2"))
 	chainID      = "execution_chain"
 	testPartSize = 65536
 	nTxsPerBlock = 10
@@ -64,11 +65,11 @@ func TestBeginBlockAbsentValidators(t *testing.T) {
 	testCases := []struct {
 		desc                     string
 		lastCommitPrecommits     []*types.Vote
-		expectedAbsentValidators []int32
+		expectedAbsentValidators [][]byte
 	}{
-		{"none absent", []*types.Vote{{ValidatorIndex: 0, Timestamp: now, Type: types.VoteTypePrecommit}, {ValidatorIndex: 1, Timestamp: now}}, []int32{}},
-		{"one absent", []*types.Vote{{ValidatorIndex: 0, Timestamp: now, Type: types.VoteTypePrecommit}, nil}, []int32{1}},
-		{"multiple absent", []*types.Vote{nil, nil}, []int32{0, 1}},
+		{"none absent", []*types.Vote{{ValidatorIndex: 0, Timestamp: now, Type: types.VoteTypePrecommit}, {ValidatorIndex: 1, Timestamp: now}}, [][]byte{}},
+		{"one absent", []*types.Vote{{ValidatorIndex: 0, Timestamp: now, Type: types.VoteTypePrecommit}, nil}, [][]byte{[]byte("test2")}},
+		{"multiple absent", []*types.Vote{nil, nil}, [][]byte{[]byte("test"), []byte("test2")}},
 	}
 
 	for _, tc := range testCases {
@@ -143,6 +144,7 @@ func state() State {
 		ChainID: chainID,
 		Validators: []types.GenesisValidator{
 			{privKey.PubKey(), 10000, "test"},
+			{privKey2.PubKey(), 10000, "test2"},
 		},
 		AppHash: nil,
 	})
@@ -161,7 +163,7 @@ var _ abci.Application = (*testApp)(nil)
 type testApp struct {
 	abci.BaseApplication
 
-	AbsentValidators    []int32
+	AbsentValidators    [][]byte
 	ByzantineValidators []abci.Evidence
 }
 
