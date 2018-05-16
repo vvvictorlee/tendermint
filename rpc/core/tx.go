@@ -6,7 +6,7 @@ import (
 	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/state/txindex/null"
 	"github.com/tendermint/tendermint/types"
-	tmquery "github.com/tendermint/tmlibs/pubsub/query"
+	tmquery "github.com/tendermint/tendermint/libs/pubsub/query"
 )
 
 // Tx allows you to query the transaction results. `nil` could mean the
