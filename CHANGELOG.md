@@ -2,6 +2,11 @@
 
 ## 0.19.4 (TBD)
 
+IMPROVEMENTS:
+
+- [libs/pubsub] copied over from tmlibs
+- [libs/events] copied over from tmlibs
+
 ## 0.19.3 (May 14th, 2018)
 
 FEATURES
