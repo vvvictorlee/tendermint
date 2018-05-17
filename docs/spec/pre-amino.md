@@ -1,6 +1,46 @@
-# Tendermint Encoding
+# Tendermint Encoding (Pre-Amino)
 
-## Binary Serialization (TMBIN)
+## PubKeys and Addresses
+
+PubKeys are prefixed with a type-byte, followed by the raw bytes of the public
+key.
+
+Two keys are supported with the following type bytes:
+
+```
+TypeByteEd25519 = 0x1
+TypeByteSecp256k1 = 0x2
+```
+
+```
+// TypeByte: 0x1
+type PubKeyEd25519 [32]byte
+
+func (pub PubKeyEd25519) Encode() []byte {
+    return 0x1 | pub
+}
+
+func (pub PubKeyEd25519) Address() []byte {
+    // NOTE: the length (0x0120) is also included
+    return RIPEMD160(0x1 | 0x0120 | pub)
+}
+
+// TypeByte: 0x2
+// NOTE: OpenSSL compressed pubkey (x-cord with 0x2 or 0x3)
+type PubKeySecp256k1 [33]byte
+
+func (pub PubKeySecp256k1) Encode() []byte {
+    return 0x2 | pub
+}
+
+func (pub PubKeySecp256k1) Address() []byte {
+    return RIPEMD160(SHA256(pub))
+}
+```
+
+See https://github.com/tendermint/go-crypto/blob/v0.5.0/pub_key.go for more.
+
+## Binary Serialization (go-wire)
 
 Tendermint aims to encode data structures in a manner similar to how the corresponding Go structs
 are laid out in memory.

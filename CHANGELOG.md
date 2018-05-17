@@ -1,28 +1,71 @@
 # Changelog
 
-## Roadmap
+## 0.19.4 (TBD)
 
-BREAKING CHANGES:
-- Better support for injecting randomness
-- Upgrade consensus for more real-time use of evidence
+## 0.19.3 (May 14th, 2018)
+
+FEATURES
+
+- [rpc] New `/consensus_state` returns just the votes seen at the current height
+
+IMPROVEMENTS
+
+- [rpc] Add stringified votes and fraction of power voted to `/dump_consensus_state`
+- [rpc] Add PeerStateStats to `/dump_consensus_state`
+
+BUG FIXES
+
+- [cmd] Set GenesisTime during `tendermint init`
+- [consensus] fix ValidBlock rules
+
+## 0.19.2 (April 30th, 2018)
 
 FEATURES:
-- Use the chain as its own CA for nodes and validators
-- Tooling to run multiple blockchains/apps, possibly in a single process
-- State syncing (without transaction replay)
-- Add authentication and rate-limitting to the RPC
+
+- [p2p] Allow peers with different Minor versions to connect
+- [rpc] `/net_info` includes `n_peers`
 
 IMPROVEMENTS:
-- Improve subtleties around mempool caching and logic
-- Consensus optimizations:
-	- cache block parts for faster agreement after round changes
-	- propagate block parts rarest first
-- Better testing of the consensus state machine (ie. use a DSL)
-- Auto compiled serialization/deserialization code instead of go-wire reflection
+
+- [p2p] Various code comments, cleanup, error types
+- [p2p] Change some Error logs to Debug
 
 BUG FIXES:
-- Graceful handling/recovery for apps that have non-determinism or fail to halt
-- Graceful handling/recovery for violations of safety, or liveness
+
+- [p2p] Fix reconnect to persistent peer when first dial fails
+- [p2p] Validate NodeInfo.ListenAddr
+- [p2p] Only allow (MaxNumPeers - MaxNumOutboundPeers) inbound peers
+- [p2p/pex] Limit max msg size to 64kB
+- [p2p] Fix panic when pex=false
+- [p2p] Allow multiple IPs per ID in AddrBook
+- [p2p] Fix before/after bugs in addrbook isBad()
+
+## 0.19.1 (April 27th, 2018)
+
+Note this release includes some small breaking changes in the RPC and one in the
+config that are really bug fixes. v0.19.1 will work with existing chains, and make Tendermint
+easier to use and debug. With <3
+
+BREAKING (MINOR)
+
+- [config] Removed `wal_light` setting. If you really needed this, let us know
+
+FEATURES:
+
+- [networks] moved in tooling from devops repo: terraform and ansible scripts for deploying testnets !
+- [cmd] Added `gen_node_key` command
+
+BUG FIXES
+
+Some of these are breaking in the RPC response, but they're really bugs!
+
+- [spec] Document address format and pubkey encoding pre and post Amino
+- [rpc] Lower case JSON field names
+- [rpc] Fix missing entries, improve, and lower case the fields in `/dump_consensus_state`
+- [rpc] Fix NodeInfo.Channels format to hex
+- [rpc] Add Validator address to `/status`
+- [rpc] Fix `prove` in ABCIQuery
+- [cmd] MarshalJSONIndent on init
 
 ## 0.19.0 (April 13th, 2018)
 
@@ -39,8 +82,9 @@ See github.com/tendermint/go-amino for details on the new format.
 See `scripts/wire2amino.go` for a tool to upgrade
 genesis/priv_validator/node_key JSON files.
 
-FEATURES:
-- [cmd] added `gen_node_key` command
+FEATURES
+
+- [test] docker-compose for local testnet setup (thanks Greg!)
 
 ## 0.18.0 (April 6th, 2018)
 

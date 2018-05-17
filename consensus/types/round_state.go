@@ -1,10 +1,12 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/tendermint/tendermint/types"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 //-----------------------------------------------------------------------------
@@ -13,6 +15,7 @@ import (
 // RoundStepType enumerates the state of the consensus state machine
 type RoundStepType uint8 // These must be numeric, ordered.
 
+// RoundStepType
 const (
 	RoundStepNewHeight     = RoundStepType(0x01) // Wait til CommitTime + timeoutCommit
 	RoundStepNewRound      = RoundStepType(0x02) // Setup new round and go to RoundStepPropose
@@ -67,25 +70,51 @@ type RoundState struct {
 	LockedRound        int                 `json:"locked_round"`
 	LockedBlock        *types.Block        `json:"locked_block"`
 	LockedBlockParts   *types.PartSet      `json:"locked_block_parts"`
-	ValidRound         int                 `json:"valid_round"`
-	ValidBlock         *types.Block        `json:"valid_block"`
-	ValidBlockParts    *types.PartSet      `json:"valid_block_parts"`
+	ValidRound         int                 `json:"valid_round"`       // Last known round with POL for non-nil valid block.
+	ValidBlock         *types.Block        `json:"valid_block"`       // Last known block of POL mentioned above.
+	ValidBlockParts    *types.PartSet      `json:"valid_block_parts"` // Last known block parts of POL metnioned above.
 	Votes              *HeightVoteSet      `json:"votes"`
 	CommitRound        int                 `json:"commit_round"` //
 	LastCommit         *types.VoteSet      `json:"last_commit"`  // Last precommits at Height-1
 	LastValidators     *types.ValidatorSet `json:"last_validators"`
 }
 
+// Compressed version of the RoundState for use in RPC
+type RoundStateSimple struct {
+	HeightRoundStep   string          `json:"height/round/step"`
+	StartTime         time.Time       `json:"start_time"`
+	ProposalBlockHash cmn.HexBytes    `json:"proposal_block_hash"`
+	LockedBlockHash   cmn.HexBytes    `json:"locked_block_hash"`
+	ValidBlockHash    cmn.HexBytes    `json:"valid_block_hash"`
+	Votes             json.RawMessage `json:"height_vote_set"`
+}
+
+// Compress the RoundState to RoundStateSimple
+func (rs *RoundState) RoundStateSimple() RoundStateSimple {
+	votesJSON, err := rs.Votes.MarshalJSON()
+	if err != nil {
+		panic(err)
+	}
+	return RoundStateSimple{
+		HeightRoundStep:   fmt.Sprintf("%d/%d/%d", rs.Height, rs.Round, rs.Step),
+		StartTime:         rs.StartTime,
+		ProposalBlockHash: rs.ProposalBlock.Hash(),
+		LockedBlockHash:   rs.LockedBlock.Hash(),
+		ValidBlockHash:    rs.ValidBlock.Hash(),
+		Votes:             votesJSON,
+	}
+}
+
 // RoundStateEvent returns the H/R/S of the RoundState as an event.
 func (rs *RoundState) RoundStateEvent() types.EventDataRoundState {
 	// XXX: copy the RoundState
 	// if we want to avoid this, we may need synchronous events after all
-	rs_ := *rs
+	rsCopy := *rs
 	edrs := types.EventDataRoundState{
 		Height:     rs.Height,
 		Round:      rs.Round,
 		Step:       rs.Step.String(),
-		RoundState: &rs_,
+		RoundState: &rsCopy,
 	}
 	return edrs
 }
@@ -115,16 +144,16 @@ func (rs *RoundState) StringIndented(indent string) string {
 		indent, rs.Height, rs.Round, rs.Step,
 		indent, rs.StartTime,
 		indent, rs.CommitTime,
-		indent, rs.Validators.StringIndented(indent+"    "),
+		indent, rs.Validators.StringIndented(indent+"  "),
 		indent, rs.Proposal,
 		indent, rs.ProposalBlockParts.StringShort(), rs.ProposalBlock.StringShort(),
 		indent, rs.LockedRound,
 		indent, rs.LockedBlockParts.StringShort(), rs.LockedBlock.StringShort(),
 		indent, rs.ValidRound,
 		indent, rs.ValidBlockParts.StringShort(), rs.ValidBlock.StringShort(),
-		indent, rs.Votes.StringIndented(indent+"    "),
+		indent, rs.Votes.StringIndented(indent+"  "),
 		indent, rs.LastCommit.StringShort(),
-		indent, rs.LastValidators.StringIndented(indent+"    "),
+		indent, rs.LastValidators.StringIndented(indent+"  "),
 		indent)
 }
 
