@@ -16,9 +16,9 @@ import (
 // []byte be type 0x1 so we can have versioned txs if need be in the future.
 type Tx []byte
 
-// Hash computes the RIPEMD160 hash of the wire encoded transaction.
+// Hash computes the TMHASH of the wire encoded transaction.
 func (tx Tx) Hash() []byte {
-	return aminoHasher(tx).Hash()
+	return merkle.SimpleHashFromBytes(tx)
 }
 
 // String returns the hex-encoded transaction as a string.

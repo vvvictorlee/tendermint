@@ -10,7 +10,7 @@ import (
 
 	cmn "github.com/tendermint/tmlibs/common"
 	"github.com/tendermint/tmlibs/merkle"
-	"golang.org/x/crypto/ripemd160"
+	"github.com/tendermint/tmlibs/merkle/tmhash"
 )
 
 // Block defines the atomic unit of a Tendermint blockchain.
@@ -205,19 +205,19 @@ func (h *Header) Hash() cmn.HexBytes {
 		return nil
 	}
 	return merkle.SimpleHashFromMap(map[string]merkle.Hasher{
-		"ChainID":     aminoHasher(h.ChainID),
-		"Height":      aminoHasher(h.Height),
-		"Time":        aminoHasher(h.Time),
-		"NumTxs":      aminoHasher(h.NumTxs),
-		"TotalTxs":    aminoHasher(h.TotalTxs),
-		"LastBlockID": aminoHasher(h.LastBlockID),
-		"LastCommit":  aminoHasher(h.LastCommitHash),
-		"Data":        aminoHasher(h.DataHash),
-		"Validators":  aminoHasher(h.ValidatorsHash),
-		"App":         aminoHasher(h.AppHash),
-		"Consensus":   aminoHasher(h.ConsensusHash),
-		"Results":     aminoHasher(h.LastResultsHash),
-		"Evidence":    aminoHasher(h.EvidenceHash),
+		"ChainID":         aminoHasher(h.ChainID),
+		"Height":          aminoHasher(h.Height),
+		"Time":            aminoHasher(h.Time),
+		"NumTxs":          aminoHasher(h.NumTxs),
+		"LastBlockID":     aminoHasher(h.LastBlockID),
+		"TotalTxs":        aminoHasher(h.TotalTxs),
+		"LastCommitHash":  aminoHasher(h.LastCommitHash),
+		"DataHash":        aminoHasher(h.DataHash),
+		"ValidatorsHash":  aminoHasher(h.ValidatorsHash),
+		"ConsensusHash":   aminoHasher(h.ConsensusHash),
+		"AppHash":         aminoHasher(h.AppHash),
+		"LastResultsHash": aminoHasher(h.LastResultsHash),
+		"EvidenceHash":    aminoHasher(h.EvidenceHash),
 	})
 }
 
@@ -543,7 +543,7 @@ type hasher struct {
 }
 
 func (h hasher) Hash() []byte {
-	hasher := ripemd160.New()
+	hasher := tmhash.New()
 	if h.item != nil && !cmn.IsTypedNil(h.item) && !cmn.IsEmpty(h.item) {
 		bz, err := cdc.MarshalBinaryBare(h.item)
 		if err != nil {
