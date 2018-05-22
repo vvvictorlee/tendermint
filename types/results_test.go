@@ -5,20 +5,25 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	cmn "github.com/tendermint/tmlibs/common"
 )
 
 func TestABCIResults(t *testing.T) {
-	a := ABCIResult{Code: 0, Data: nil}
-	b := ABCIResult{Code: 0, Data: []byte{}}
-	c := ABCIResult{Code: 0, Data: []byte("one")}
-	d := ABCIResult{Code: 14, Data: nil}
-	e := ABCIResult{Code: 14, Data: []byte("foo")}
-	f := ABCIResult{Code: 14, Data: []byte("bar")}
 
 	// Nil and []byte{} should produce the same hash.
+	a := ABCIResult{Code: 0, Data: nil}
+	b := ABCIResult{Code: 0, Data: []byte{}}
 	require.Equal(t, a.Hash(), a.Hash())
 	require.Equal(t, b.Hash(), b.Hash())
 	require.Equal(t, a.Hash(), b.Hash())
+
+	c := ABCIResult{Code: 0, Data: []byte("one"),
+		Tags: cmn.KVPairs{
+			{[]byte("key"), []byte("value")},
+		}}
+	d := ABCIResult{Code: 14, Data: nil}
+	e := ABCIResult{Code: 14, Data: []byte("foo")}
+	f := ABCIResult{Code: 14, Data: []byte("bar")}
 
 	// a and b should be the same, don't go in results.
 	results := ABCIResults{a, c, d, e, f}
@@ -40,4 +45,18 @@ func TestABCIResults(t *testing.T) {
 		valid := proof.Verify(i, len(results), res.Hash(), root)
 		assert.True(t, valid, "%d", i)
 	}
+}
+
+func TestABCIResultTags(t *testing.T) {
+
+	a := ABCIResult{Code: 0, Data: []byte("one"),
+		Tags: cmn.KVPairs{
+			{[]byte("key"), []byte("value")},
+		}}
+	b := ABCIResult{Code: 0, Data: []byte("one"),
+		Tags: cmn.KVPairs{
+			{[]byte("keyv"), []byte("alue")},
+		}}
+
+	assert.NotEqual(t, a.Hash(), b.Hash())
 }

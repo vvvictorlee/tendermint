@@ -9,10 +9,10 @@ import (
 //-----------------------------------------------------------------------------
 
 // ABCIResult is the deterministic component of a ResponseDeliverTx.
-// TODO: add Tags
 type ABCIResult struct {
 	Code uint32       `json:"code"`
 	Data cmn.HexBytes `json:"data"`
+	Tags cmn.KVPairs  `json:"tags"`
 }
 
 // Hash returns the canonical hash of the ABCIResult
@@ -37,6 +37,7 @@ func NewResultFromResponse(response *abci.ResponseDeliverTx) ABCIResult {
 	return ABCIResult{
 		Code: response.Code,
 		Data: response.Data,
+		Tags: response.Tags,
 	}
 }
 
