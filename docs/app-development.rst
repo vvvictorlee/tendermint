@@ -482,8 +482,8 @@ returning non-OK ABCI response to either of the following queries will
 cause Tendermint to not connect to the corresponding peer:
 
 -  ``p2p/filter/addr/<addr>``, where ``<addr>`` is an IP address.
--  ``p2p/filter/pubkey/<pubkey>``, where ``<pubkey>`` is the hex-encoded
-   ED25519 key of the node (not it's validator key)
+-  ``p2p/filter/id/<id>``, where ``<id>`` is the hex-encoded node ID
+    (the hash of the node's p2p pubkey).
 
 Note: these query formats are subject to change!
 
